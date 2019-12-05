@@ -24,11 +24,27 @@ int 0x16
 sub al, 48
 mov [diceCount], al
 
-; Print the count of dice.
-; That's enough for today.
-; Remove later.
+; Get system time.
+xor ah, ah
+int 0x1a
+
+; The PRNG itself.
+; The xorshift algorithm variant.
+mov ax, dx
+
+shl dx, 7
+xor ax, dx
+mov dx, ax
+
+shr dx, 9
+xor ax, dx
+mov dx, ax
+
+shl dx, 8
+xor ax, dx
+
+; Print the random char.
 mov ah, 0xe
-add al, 48
 int 0x10
 
 jmp $
