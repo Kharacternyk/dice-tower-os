@@ -22,32 +22,47 @@ greetingPrintLoop:
 xor ah, ah
 int 0x16
 sub al, 48
-mov [diceCount], al
+mov [diceCount+base], al
 
-; Get system time.
+; Seed PRNG with the system time.
 xor ah, ah
 int 0x1a
-
-; The PRNG itself.
-; The xorshift algorithm variant.
 mov ax, dx
 
-shl dx, 7
-xor ax, dx
-mov dx, ax
+mainLoop:
+    ; The PRNG itself.
+    ; The 16-bit xorshift algorithm.
+    shl dx, 7
+    xor ax, dx
+    mov dx, ax
 
-shr dx, 9
-xor ax, dx
-mov dx, ax
+    shr dx, 9
+    xor ax, dx
+    mov dx, ax
 
-shl dx, 8
-xor ax, dx
+    shl dx, 8
+    xor ax, dx
+
+    push ax
+
+; Get reminder by 6.
+    shr ax, 8
+    mov cl, 6
+    div cl
+    mov al, ah
 
 ; Print the random char.
-mov ah, 0xe
-int 0x10
+    add al, 49
+    mov ah, 0xe
+    int 0x10
 
-jmp $
+; Wait for the keystroke to continue.
+    xor ah, ah
+    int 0x16
+
+    pop ax
+    mov dx, ax
+    jmp mainLoop
 
 ; Data.
 diceCount rb 1
