@@ -16,22 +16,59 @@ greetingPrintLoop:
     cmp al, 0
     jne greetingPrintLoop
 
-; Get a count of dice.
+; Get the count of dice.
 ; Only one keystroke is read.
 ; Understands hex.
 xor ah, ah
 int 0x16
+
+; Print the count of dice.
+mov ah, 0xe
+int 0x10
+
+; Store the count as a number.
 sub al, 48
 mov [diceCount+base], al
+
+; A blank line (to be eye candy).
+mov al, lf
+mov ah, 0xe
+int 0x10
+
+mov al, cr
+int 0x10
+
+; The count of dice we've already rolled in this iteration.
+xor bl, bl
 
 ; Seed PRNG with the system time.
 xor ah, ah
 int 0x1a
-mov ax, dx
+mov [prngState+base], dx
 
-mainLoop:
-    ; The PRNG itself.
-    ; The 16-bit xorshift algorithm.
+ioLoop:
+; Print the prompt.
+    mov al, lf
+    mov ah, 0xe
+    int 0x10
+    int 0x10
+
+    mov al, cr
+    int 0x10
+
+    mov al, '>'
+    int 0x10
+
+    mov al, ' '
+    int 0x10
+
+prngLoop:
+; Setup for the roll.
+    mov ax, [prngState+base]
+    mov dx, ax
+
+; The PRNG itself.
+; The 16-bit xorshift algorithm.
     shl dx, 7
     xor ax, dx
     mov dx, ax
@@ -43,7 +80,8 @@ mainLoop:
     shl dx, 8
     xor ax, dx
 
-    push ax
+; Save the state.
+    mov [prngState+base], ax
 
 ; Get reminder by 6.
     shr ax, 8
@@ -51,22 +89,41 @@ mainLoop:
     div cl
     mov al, ah
 
-; Print the random char.
+; Print the score.
     add al, 49
     mov ah, 0xe
     int 0x10
 
-; Wait for the keystroke to continue.
+; Print a space.
+    mov al, ' '
+    mov ah, 0xe
+    int 0x10
+
+; Check whether we've rolled all dice.
+    inc bl
+    cmp bl, [diceCount+base]
+    jnb @f
+
+    jmp prngLoop
+
+; We have rolled all dice.
+; Zero out the counter of rolled dice.
+@@: xor bl, bl
+
+; Wait for a keypress to continue.
     xor ah, ah
     int 0x16
 
-    pop ax
-    mov dx, ax
-    jmp mainLoop
+    jmp ioLoop
 
 ; Data.
+prngState rw 1
 diceCount rb 1
-greeting  db "DICE TOWER",lf,cr,"Dice count:",lf,cr
+greeting  db \
+    "<==DICE TOWER OS==>",lf,lf,cr, \
+    "Enter the dice count.",lf,cr, \
+    "Then press any key to roll them.", \
+    lf,lf,cr,"Dice count:",0
 
 ; Magic.
 rb 510-$
