@@ -1,50 +1,48 @@
 format binary
 
-base equ 0x7c00; That's where code is loaded by BIOS.
-lf   equ 10    ; Line feed.
-cr   equ 13    ; Carriage return.
+include 'constants.inc'
+include 'macro.inc'
 
 ; Print the greeting and the instructions.
-xor si, si
-mov ah, 0xe
-mov al, byte [greeting+base]
+    xor si, si
+    mov ah, 0xe
+    get al, greeting
 
-greetingPrintLoop:
-    int 0x10
+@@: int 0x10
     inc si
-    mov al, [greeting+base+si]
+    get al, greeting+si
     cmp al, 0
-    jne greetingPrintLoop
+    jne @b
 
 ; Get the count of dice.
 ; Only one keystroke is read.
 ; Understands hex.
-xor ah, ah
-int 0x16
+    xor ah, ah
+    int 0x16
 
 ; Print the count of dice.
-mov ah, 0xe
-int 0x10
+    mov ah, 0xe
+    int 0x10
 
 ; Store the count as a number.
-sub al, 48
-mov [diceCount+base], al
+    sub al, 48
+    put diceCount, al
 
 ; A blank line (to be eye candy).
-mov al, lf
-mov ah, 0xe
-int 0x10
+    mov al, lf
+    mov ah, 0xe
+    int 0x10
 
-mov al, cr
-int 0x10
+    mov al, cr
+    int 0x10
 
 ; The count of dice we've already rolled in this iteration.
-xor bl, bl
+    xor bl, bl
 
 ; Seed PRNG with the system time.
-xor ah, ah
-int 0x1a
-mov [prngState+base], dx
+    xor ah, ah
+    int 0x1a
+    put prngState, dx
 
 ioLoop:
 ; Print the prompt.
@@ -64,7 +62,7 @@ ioLoop:
 
 prngLoop:
 ; Setup for the roll.
-    mov ax, [prngState+base]
+    get ax, prngState
     mov dx, ax
 
 ; The PRNG itself.
@@ -81,7 +79,7 @@ prngLoop:
     xor ax, dx
 
 ; Save the state.
-    mov [prngState+base], ax
+    put prngState, ax
 
 ; Get reminder by 6.
     shr ax, 8
