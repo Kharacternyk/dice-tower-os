@@ -59,6 +59,8 @@ ioLoop:
 
     mov al, ' '
     int 0x10
+; Zero out the total score.
+    mov [totalScore+base], 0
 
 prngLoop:
 ; Setup for the roll.
@@ -86,9 +88,11 @@ prngLoop:
     mov cl, 6
     div cl
     mov al, ah
+    inc al
+    add byte [totalScore+base], al
 
 ; Print the score.
-    add al, 49
+    add al, 48
     mov ah, 0xe
     int 0x10
 
@@ -108,6 +112,12 @@ prngLoop:
 ; Zero out the counter of rolled dice.
 @@: xor bl, bl
 
+; Print total score.
+    mov ah, 0xe
+    mov al, [totalScore+base]
+    add al, 48
+    int 0x10
+
 ; Wait for a keypress to continue.
     xor ah, ah
     int 0x16
@@ -115,9 +125,10 @@ prngLoop:
     jmp ioLoop
 
 ; Data.
-prngState rw 1
-diceCount rb 1
-greeting  db \
+prngState  rw 1
+totalScore rb 1
+diceCount  rb 1
+greeting   db \
     "<==DICE TOWER OS==>",lf,lf,cr, \
     "Enter the dice count.",lf,cr, \
     "Then press any key to roll them.", \
