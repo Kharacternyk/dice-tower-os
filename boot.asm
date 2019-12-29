@@ -14,20 +14,6 @@ include 'macro.inc'
     cmp al, 0
     jne @b
 
-; Get the count of dice.
-; Only one keystroke is read.
-; Understands hex.
-    xor ah, ah
-    int 0x16
-
-; Print the count of dice.
-    mov ah, 0xe
-    int 0x10
-
-; Store the count as a number.
-    sub al, 48
-    put diceCount, al
-
 ; A blank line (to be eye candy).
     mov al, lf
     mov ah, 0xe
@@ -36,17 +22,31 @@ include 'macro.inc'
     mov al, cr
     int 0x10
 
-; The count of dice we've already rolled in this iteration.
-    xor bl, bl
-
 ; Seed PRNG with the system time.
     xor ah, ah
     int 0x1a
     put prngState, dx
 
 ioLoop:
+; The count of dice we've already rolled in this iteration.
+    xor bl, bl
+
+; Get the count of dice.
+; Only one keystroke is read.
+; Understands hex.
+    xor ah, ah
+    int 0x16
+
+; If a space is received, do not alter the dice count.
+    cmp al, 32
+    je @f
+
+; Otherwise store the count as a number.
+    sub al, 48
+    put diceCount, al
+
 ; Print the prompt.
-    mov al, lf
+@@: mov al, lf
     mov ah, 0xe
     int 0x10
     int 0x10
@@ -60,7 +60,7 @@ ioLoop:
     mov al, ' '
     int 0x10
 ; Zero out the total score.
-    mov [totalScore+base], 0
+    put totalScore, 0
 
 prngLoop:
 ; Setup for the roll.
@@ -109,18 +109,11 @@ prngLoop:
     jmp prngLoop
 
 ; We have rolled all dice.
-; Zero out the counter of rolled dice.
-@@: xor bl, bl
-
 ; Print total score.
-    mov ah, 0xe
-    mov al, [totalScore+base]
+@@: mov ah, 0xe
+    get al, totalScore
     add al, 48
     int 0x10
-
-; Wait for a keypress to continue.
-    xor ah, ah
-    int 0x16
 
     jmp ioLoop
 
@@ -130,9 +123,8 @@ totalScore rb 1
 diceCount  rb 1
 greeting   db \
     "<==DICE TOWER OS==>",lf,lf,cr, \
-    "Enter the dice count.",lf,cr, \
-    "Then press any key to roll them.", \
-    lf,lf,cr,"Dice count:",0
+    "Press a N key, where N is a number, to roll N dice.",lf,cr, \
+    "Press space to roll the same number of dice as before.",lf,cr
 
 ; Magic.
 rb 510-$
