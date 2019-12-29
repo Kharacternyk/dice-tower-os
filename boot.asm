@@ -111,19 +111,41 @@ prngLoop:
     jmp prngLoop
 
 ; We have rolled all dice.
-; Print total score.
+; Print the total score.
 @@: mov ah, 0xe
+    mov al, ':'
+    int 0x10
+
+; Two digits are supported as for now.
+; Should be enough since we allow only 9 dices or less.
+; 6*9 < 100
+    mov cl, 10
+    xor ah, ah
     get al, totalScore
-    add al, 48
+    div cl
+
+    mov cl, ah
+    add cl, 48
+    mov dl, al
+    add dl, 48
+
+    mov ah, 0xe
+    mov al, dl
+    cmp al, '0'
+    je @f
+    int 0x10
+@@: mov al, cl
     int 0x10
 
     jmp ioLoop
 
 ; Data.
-prngState  rw 1
-totalScore rb 1
-diceCount  rb 1
-greeting   db \
+firstDigit  rb 1
+secondDigit rb 1
+prngState   rw 1
+totalScore  rb 1
+diceCount   rb 1
+greeting    db \
     "<==DICE TOWER OS==>",lf,lf,cr, \
     "Press a N key, where N is a number, to roll N dice.",lf,cr, \
     "Press space to roll the same number of dice as before.",lf,cr
