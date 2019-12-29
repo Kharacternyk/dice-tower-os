@@ -28,12 +28,11 @@ include 'macro.inc'
     put prngState, dx
 
 ioLoop:
-; The count of dice we've already rolled in this iteration.
+; Zero out the count of dice we've already rolled in this iteration.
     xor bl, bl
 
 ; Get the count of dice.
 ; Only one keystroke is read.
-; Understands hex.
     xor ah, ah
     int 0x16
 
@@ -41,8 +40,11 @@ ioLoop:
     cmp al, 32
     je @f
 
-; Otherwise store the count as a number.
-    sub al, 48
+; Otherwise try to parse a number.
+    sub al, 49
+    cmp al, 9
+    ja ioLoop
+    inc al
     put diceCount, al
 
 ; Print the prompt.
