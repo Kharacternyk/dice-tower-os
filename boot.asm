@@ -93,6 +93,10 @@ prngLoop:
     inc al
     add byte [totalScore+base], al
 
+; Store the score
+    movzx si, bl
+    put si+scores, al
+
 ; Print the score.
     add al, 48
     mov ah, 0xe
@@ -137,11 +141,22 @@ prngLoop:
 @@: mov al, cl
     int 0x10
 
+; Print the visualization.
+; THIS IS A SKETCH, ADD TEXTURES LATER.
+    mov ah, 0xe
+    xor si, si
+    xor bh, bh
+@@: get al, scores+si
+    add al, 48
+    int 0x10
+    inc si
+    cmp si, bx
+    jl @b
+
     jmp ioLoop
 
 ; Data.
-firstDigit  rb 1
-secondDigit rb 1
+scores      rb 9
 prngState   rw 1
 totalScore  rb 1
 diceCount   rb 1
