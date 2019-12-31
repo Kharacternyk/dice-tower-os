@@ -1,7 +1,18 @@
 format binary
 
-include 'constants.inc'
-include 'macro.inc'
+base equ 0x7c00; That's where code is loaded by BIOS.
+lf   equ 10    ; Line feed.
+cr   equ 13    ; Carriage return.
+b    equ 219   ; Full block.
+s    equ 32    ; Space.
+
+macro put destination*, source* {
+    mov [destination+base], source
+}
+
+macro get destination*, source* {
+    mov destination, [source+base]
+}
 
 ; Print the greeting and the instructions.
     xor si, si
