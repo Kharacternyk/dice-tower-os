@@ -142,16 +142,69 @@ prngLoop:
     int 0x10
 
 ; Print the visualization.
-; THIS IS A SKETCH, ADD TEXTURES LATER.
     mov ah, 0xe
-    xor si, si
     xor bh, bh
-@@: get al, scores+si
-    add al, 48
+
+macro fill5cell {
+    xor si, si
+@@: mov al, b
+    times 5 int 0x10
+    mov al, ' '
     int 0x10
     inc si
+    movzx bx, [diceCount+base]
     cmp si, bx
     jl @b
+}
+macro newLine {
+    mov al, lf
+    int 0x10
+    mov al, cr
+    int 0x10
+}
+    newLine
+    newLine
+    fill5cell
+    newLine
+
+    xor bl, bl
+
+    visualLoop:
+        movzx si, bl
+        imul si, si, 6*3
+        add si, texture
+
+        xor cl, cl
+    @@: movzx di, cl
+        movzx di, [scores+di+base]
+        dec di
+        imul di, di, 3
+        add di, base
+        add di, si
+
+        mov al, b
+        int 0x10
+        mov al, [di]
+        int 0x10
+        mov al, [di+1]
+        int 0x10
+        mov al, [di+2]
+        int 0x10
+        mov al, b
+        int 0x10
+        mov al, ' '
+        int 0x10
+
+        inc cl
+        cmp cl, [diceCount+base]
+        jl @b
+
+        newLine
+        inc bl
+        cmp bl, 3
+        jl visualLoop
+
+    fill5cell
 
     jmp ioLoop
 
@@ -160,10 +213,14 @@ scores      rb 9
 prngState   rw 1
 totalScore  rb 1
 diceCount   rb 1
+
 greeting    db \
-    "<==DICE TOWER OS==>",lf,lf,cr, \
-    "Press a N key, where N is a number, to roll N dice.",lf,cr, \
-    "Press space to roll the same number of dice as before.",lf,cr
+    "DICE TOWER OS",lf,lf,cr, \
+    "Number keys change the count of dice. Space rolls.",lf,cr,0
+
+texture  db b,b,b, b,b,s, b,b,s, s,b,s, s,b,s, s,b,s, \
+            b,s,b, b,b,b, b,s,b, b,b,b, b,s,b, s,b,s, \
+            b,b,b, s,b,b, s,b,b, s,b,s, s,b,s, s,b,s
 
 ; Magic.
 rb 510-$
