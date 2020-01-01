@@ -220,11 +220,6 @@ macro newLine {
     jmp ioLoop
 
 ; Data.
-scores      rb 9
-prngState   rw 1
-totalScore  rb 1
-diceCount   rb 1
-
 greeting    db \
     "DICE TOWER OS",lf,lf,cr, \
     "Number keys change the count of dice. Space rolls.",lf,cr,0
@@ -232,6 +227,12 @@ greeting    db \
 texture  db b,b,b, b,b,s, b,b,s, s,b,s, s,b,s, s,b,s, \
             b,s,b, b,b,b, b,s,b, b,b,b, b,s,b, s,b,s, \
             b,b,b, s,b,b, s,b,b, s,b,s, s,b,s, s,b,s
+
+; Reserved space.
+scores      rb 9
+prngState   rw 1
+totalScore  rb 1
+diceCount   rb 1
 
 ; Magic.
 rb 510-$
