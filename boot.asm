@@ -1,42 +1,42 @@
 format binary
 
-base equ 0x7c00; That's where code is loaded by BIOS.
-lf   equ 10    ; Line feed.
-cr   equ 13    ; Carriage return.
-b    equ 219   ; Full block.
-s    equ 32    ; Space.
+BASE equ 0x7c00; That's where code is loaded by BIOS.
+LF   equ 10    ; Line feed.
+CR   equ 13    ; Carriage return.
+B    equ 219   ; Full block.
+S    equ 32    ; Space.
 
-macro put destination*, source* {
-    mov [destination+base], source
+macro _put destination*, source* {
+    mov [destination+BASE], source
 }
 
-macro get destination*, source* {
-    mov destination, [source+base]
+macro _get destination*, source* {
+    mov destination, [source+BASE]
 }
 
 ; Print the greeting and the instructions.
     xor si, si
     mov ah, 0xe
-    get al, greeting
+    _get al, greeting
 
 @@: int 0x10
     inc si
-    get al, greeting+si
+    _get al, greeting+si
     cmp al, 0
     jne @b
 
 ; A blank line (to be eye candy).
-    mov al, lf
+    mov al, LF
     mov ah, 0xe
     int 0x10
 
-    mov al, cr
+    mov al, CR
     int 0x10
 
 ; Seed PRNG with the system time.
     xor ah, ah
     int 0x1a
-    put prngState, dx
+    _put prngState, dx
 
 ioLoop:
 ; Zero out the count of dice we've already rolled in this iteration.
@@ -56,15 +56,15 @@ ioLoop:
     cmp al, 9
     ja ioLoop
     inc al
-    put diceCount, al
+    _put diceCount, al
 
 ; Print the prompt.
-@@: mov al, lf
+@@: mov al, LF
     mov ah, 0xe
     int 0x10
     int 0x10
 
-    mov al, cr
+    mov al, CR
     int 0x10
 
     mov al, '>'
@@ -73,11 +73,11 @@ ioLoop:
     mov al, ' '
     int 0x10
 ; Zero out the total score.
-    put totalScore, 0
+    _put totalScore, 0
 
 prngLoop:
 ; Setup for the roll.
-    get ax, prngState
+    _get ax, prngState
     mov dx, ax
 
 ; The PRNG itself.
@@ -94,7 +94,7 @@ prngLoop:
     xor ax, dx
 
 ; Save the state.
-    put prngState, ax
+    _put prngState, ax
 
 ; Get reminder by 6.
     shr ax, 8
@@ -102,11 +102,11 @@ prngLoop:
     div cl
     mov al, ah
     inc al
-    add byte [totalScore+base], al
+    add byte [totalScore+BASE], al
 
 ; Store the score
     movzx si, bl
-    put si+scores, al
+    _put si+scores, al
 
 ; Print the score.
     add al, 48
@@ -114,13 +114,13 @@ prngLoop:
     int 0x10
 
 ; Print a space.
-    mov al, ' '
+    mov al, S
     mov ah, 0xe
     int 0x10
 
 ; Check whether we've rolled all dice.
     inc bl
-    cmp bl, [diceCount+base]
+    cmp bl, [diceCount+BASE]
     jnb @f
 
     jmp prngLoop
@@ -136,7 +136,7 @@ prngLoop:
 ; 6*9 < 100
     mov cl, 10
     xor ah, ah
-    get al, totalScore
+    _get al, totalScore
     div cl
 
     mov cl, ah
@@ -156,27 +156,27 @@ prngLoop:
     mov ah, 0xe
     xor bh, bh
 
-macro fill5cell {
+macro _fill5cell {
     xor si, si
-@@: mov al, b
+@@: mov al, B
     times 5 int 0x10
-    mov al, ' '
+    mov al, S
     int 0x10
     inc si
-    movzx bx, [diceCount+base]
+    movzx bx, [diceCount+BASE]
     cmp si, bx
     jl @b
 }
-macro newLine {
-    mov al, lf
+macro _newLine {
+    mov al, LF
     int 0x10
-    mov al, cr
+    mov al, CR
     int 0x10
 }
-    newLine
-    newLine
-    fill5cell
-    newLine
+    _newLine
+    _newLine
+    _fill5cell
+    _newLine
 
     xor bl, bl
 
@@ -187,13 +187,13 @@ macro newLine {
 
         xor cl, cl
     @@: movzx di, cl
-        movzx di, [scores+di+base]
+        movzx di, [scores+di+BASE]
         dec di
         imul di, di, 3
-        add di, base
+        add di, BASE
         add di, si
 
-        mov al, b
+        mov al, B
         int 0x10
         mov al, [di]
         int 0x10
@@ -201,32 +201,31 @@ macro newLine {
         int 0x10
         mov al, [di+2]
         int 0x10
-        mov al, b
+        mov al, B
         int 0x10
-        mov al, ' '
+        mov al, S
         int 0x10
 
         inc cl
-        cmp cl, [diceCount+base]
+        cmp cl, [diceCount+BASE]
         jl @b
 
-        newLine
+        _newLine
         inc bl
         cmp bl, 3
         jl visualLoop
 
-    fill5cell
-
+    _fill5cell 
     jmp ioLoop
 
 ; Data.
 greeting    db \
-    "DICE TOWER OS",lf,lf,cr, \
-    "Number keys change the count of dice. Space rolls.",lf,cr,0
+    "DICE TOWER OS",LF,LF,CR, \
+    "Number keys change the count of dice. Space rolls.",LF,CR,0
 
-texture  db b,b,b, b,b,s, b,b,s, s,b,s, s,b,s, s,b,s, \
-            b,s,b, b,b,b, b,s,b, b,b,b, b,s,b, s,b,s, \
-            b,b,b, s,b,b, s,b,b, s,b,s, s,b,s, s,b,s
+texture  db B,B,B, B,B,S, B,B,S, S,B,S, S,B,S, S,B,S, \
+            B,S,B, B,B,B, B,S,B, B,B,B, B,S,B, S,B,S, \
+            B,B,B, S,B,B, S,B,B, S,B,S, S,B,S, S,B,S
 
 ; Reserved space.
 scores      rb 9
