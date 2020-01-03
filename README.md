@@ -11,3 +11,8 @@ Grab a binary disk image from the releases page. Then either specify the disk im
 1. `dd if=/path/to/image of=/dev/your_flash_drive` on Linux or use a graphical bootable USB creator on any OS.
 2. **Unplug the internal HDD or SSD of the PC to make sure that Dice Tower can not damage their file systems.** Dice Tower doesn't contain any code to read or write to drives, but this step is recommended anyway.
 3. Choose the flash drive in the BIOS/UEFI boot menu.
+
+# Keys to press.
+
+- Use _1-9_ to change the dice count to the corresponding number and roll them.
+- Use _Space_ to roll the dice.
