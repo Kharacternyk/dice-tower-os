@@ -218,8 +218,7 @@ macro _newLine {
 
 ; Data.
 greeting    db \
-    "DICE TOWER OS",LF,LF,CR, \
-    "Number keys change the count of dice. Space rolls.",LF,CR,0
+    LF,LF,"DICE TOWER OS",LF,LF,CR, 0
 
 texture  db B,B,B, B,B,S, B,B,S, S,B,S, S,B,S, S,B,S, \
             B,S,B, B,B,B, B,S,B, B,B,B, B,S,B, S,B,S, \
