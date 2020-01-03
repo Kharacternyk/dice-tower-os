@@ -1,4 +1,5 @@
 ![](screenshot.png?raw=true)
+![](real_hardware.jpg?raw=true)
 
 # What is it?
 
