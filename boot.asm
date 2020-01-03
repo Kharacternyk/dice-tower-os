@@ -61,8 +61,7 @@ ioLoop:
 ; Print the prompt.
 @@: mov al, LF
     mov ah, 0xe
-    int 0x10
-    int 0x10
+    times 2 int 0x10
 
     mov al, CR
     int 0x10
@@ -173,7 +172,6 @@ macro _newLine {
     mov al, CR
     int 0x10
 }
-    _newLine
     _newLine
     _fill5cell
     _newLine
