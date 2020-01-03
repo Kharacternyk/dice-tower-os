@@ -1,10 +1,10 @@
 format binary
 
-BASE equ 0x7c00; That's where code is loaded by BIOS.
-LF   equ 10    ; Line feed.
-CR   equ 13    ; Carriage return.
-B    equ 219   ; Full block.
-S    equ 32    ; Space.
+BASE = 0x7c00; That's where code is loaded by BIOS.
+LF   = 10    ; Line feed.
+CR   = 13    ; Carriage return.
+B    = 219   ; Full block.
+S    = 32    ; Space.
 
 macro _put destination*, source* {
     mov [destination+BASE], source
@@ -48,11 +48,11 @@ ioLoop:
     int 0x16
 
 ; If a space is received, do not alter the dice count.
-    cmp al, 32
+    cmp al, S
     je @f
 
 ; Otherwise try to parse a number.
-    sub al, 49
+    sub al, '1'
     cmp al, 9
     ja ioLoop
     inc al
@@ -68,9 +68,9 @@ ioLoop:
     int 0x10
 
     mov al, '>'
-    int 0x10
+    times 3 int 0x10
 
-    mov al, ' '
+    mov al, S
     int 0x10
 ; Zero out the total score.
     _put totalScore, 0
@@ -109,7 +109,7 @@ prngLoop:
     _put si+scores, al
 
 ; Print the score.
-    add al, 48
+    add al, '0'
     mov ah, 0xe
     int 0x10
 
@@ -140,9 +140,9 @@ prngLoop:
     div cl
 
     mov cl, ah
-    add cl, 48
+    add cl, '0'
     mov dl, al
-    add dl, 48
+    add dl, '0'
 
     mov ah, 0xe
     mov al, dl
@@ -182,8 +182,8 @@ macro _newLine {
 
     visualLoop:
         movzx si, bl
-        imul si, si, 6*3
-        add si, texture
+        imul si, si, 6*3 ;go to the needed row.
+        add si, texture  ;go to the needed texture.
 
         xor cl, cl
     @@: movzx di, cl
