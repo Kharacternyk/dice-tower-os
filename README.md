@@ -1,3 +1,5 @@
+![](screenshot.png?raw=true)
+
 # What is it?
 
 Dice Tower is a programm written in [Flat Assembly](https://flatassembler.net/) that emulates a dice tower and fits into a boot sector of 512 bytes. Internally it uses a variant of [xorshift algorithm](https://en.wikipedia.org/wiki/Xorshift). Dice Tower uses BIOS interrupts, and one should be able to boot into it on any PC with BIOS or BIOS-compatible UEFI (in other words, if a motherboard isn't one of the newest, Dice Tower will boot fine).
