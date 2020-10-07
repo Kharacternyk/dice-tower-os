@@ -6,7 +6,7 @@ boot sector of 512 bytes. It implements the 16-bit variant of the
 [xorshift algorithm](https://en.wikipedia.org/wiki/Xorshift). Dice Tower OS uses BIOS
 interrupts, hence it requires a PC with BIOS or BIOS-compatible UEFI.
 
-###### Get it running
+##### Get it running
 
 Grab a binary disk image from the releases page. Then either specify the disk image
 while creating a virtual machine (there should be an option like
@@ -20,7 +20,7 @@ their file systems.** Dice Tower doesn't contain any code to read or write to dr
 this step is recommended anyway.
 3. Choose the flash drive in the BIOS/UEFI boot menu.
 
-###### Keys to press
+##### Keys to press
 
 - Press _1-9_ to change the dice count.
 - Press _Space_ to roll the dice.
