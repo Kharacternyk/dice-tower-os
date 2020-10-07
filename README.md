@@ -1,5 +1,4 @@
 ![](screenshot.png?raw=true)
-![](real_hardware.jpg?raw=true)
 
 Dice Tower OS is a bootable image written in [Flat Assembly](https://flatassembler.net/)
 that emulates a [dice tower](https://en.wikipedia.org/wiki/Dice_tower) and fits into a
